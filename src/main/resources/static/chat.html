@@ -34,74 +34,53 @@
                     <div class="mdui-textfield mdui-textfield-floating-label">
                         <i class="mdui-icon material-icons">textsms</i>
                         <label class="mdui-textfield-label">Message</label>
-                        <textarea class="mdui-textfield-input"></textarea>
+                        <textarea class="mdui-textfield-input chat-message"></textarea>
 
 
                     </div>
                     <div class="mdui-container" style="padding:20px 40px">
-                        <button class="mdui-btn mdui-color-theme-accent mdui-ripple">发送</button>
+                        <button class="mdui-btn mdui-color-theme-accent mdui-ripple send-message">发送</button>
                     </div>
                 </div>
             </div>
 
-            <div class="mdui-col-xs-6 mdui-col-sm-4" style="padding:10px 0">
-                <div class="mdui-chip" >
+            <div class="mdui-col-xs-6 mdui-col-sm-4 " style="padding:10px 0">
+                <div class="mdui-chip">
                     <span class="mdui-chip-icon mdui-color-blue"><i class="mdui-icon material-icons">face</i></span>
-                    <span class="mdui-chip-title">欢迎你的到来</span>
+                    <span class="mdui-chip-title">总人数</span>
                 </div>
 
                 <div class="mdui-chip">
                     <span class="mdui-chip-icon mdui-color-blue"><i class="mdui-icon material-icons">&#xe420;</i></span>
-                    <span class="mdui-chip-title">总人数 48</span>
+                    <span class="mdui-chip-title chat-num">0</span>
                 </div>
+                <div class="message-container">
 
-
-                <div class="mdui-card card-container-message">
-                    <div class="mdui-card-header">
-                        <img class="mdui-card-header-avatar" src="http://mdui-org.b0.upaiyun.com/docs/assets/docs/img/avatar2.jpg" />
-                        <div class="mdui-card-header-title">消息面板</div>
-                        <div class="mdui-card-header-subtitle"></div>
-                    </div>
-
-                    <div class="mdui-card-primary">
-                        <div class="mdui-card-primary-title">消息</div>
-                    </div>
-                    <div class="mdui-card-content">哈哈哈哈 测试</div>
-                    <div class="mdui-card-actions">
-                        <button class="mdui-btn mdui-ripple"></button>
-                        <button class="mdui-btn mdui-ripple"></button>
-                    </div>
                 </div>
-
-                <div class="mdui-card card-container-message">
-                    <div class="mdui-card-header">
-                        <img class="mdui-card-header-avatar" src="http://mdui-org.b0.upaiyun.com/docs/assets/docs/img/avatar2.jpg" />
-                        <div class="mdui-card-header-title">消息面板</div>
-                        <div class="mdui-card-header-subtitle"></div>
-                    </div>
-
-                    <div class="mdui-card-primary">
-                        <div class="mdui-card-primary-title">消息</div>
-                    </div>
-                    <div class="mdui-card-content">哈哈哈哈 测试</div>
-                    <div class="mdui-card-actions">
-                        <button class="mdui-btn mdui-ripple"></button>
-                        <button class="mdui-btn mdui-ripple"></button>
-                    </div>
-                </div>
-
             </div>
+
         </div>
     </div>
 </div>
 
 
 <script src="http://cdn.bootcss.com/mdui/0.3.0/js/mdui.min.js"></script>
+<script src="https://cdn.bootcss.com/jquery/1.12.1/jquery.js"></script>
+
+<script type="text/template" class="package-price-template" id="message-template">
+    <div class="mdui-card card-container-message">
+        <div class="mdui-card-primary">
+            <div class="mdui-card-primary-title">消息</div>
+        </div>
+        <div class="mdui-card-content message-content"></div>
+    </div>
+</script>
 
 <script type="application/javascript">
     var websocket = null;
+    var cahtNum = $('.chat-num').text();
     if ('WebSocket' in window) {
-        websocket = new WebSocket('ws://xiazhong.natapp1.cc/webSocket');
+        websocket = new WebSocket('ws://localhost:8080/chat/webSocket');
 
     } else {
         alert('该浏览器不支持websocket');
@@ -117,10 +96,16 @@
 
     websocket.onmessage = function (event) {
         console.log('websocket收到消息' + event.data);
-
-        $('#myModal').modal('show');
-        document.getElementById('notice').play();
-
+        if (event.data == "有新的进入") {
+            $('.chat-num').text($('.chat-num').text() - 0 + 1);
+        }
+        else if (event.data == "有用户离开") {
+            $('.chat-num').text($('.chat-num').text() - 1);
+        } else {
+            var element = document.getElementById('message-template').innerHTML;
+       
+            $('.message-container').append();
+        }
     }
 
     websocket.onerror = function (event) {
@@ -130,6 +115,17 @@
 
     window.onbeforeunload = function (event) {
         websocket.close();
+    }
+
+    $('.send-message').click(function () {
+        var message = $('.chat-message').val();
+        sendmessage(message);
+        $('.chat-message').val("");
+    })
+
+    function sendmessage(message) {
+        websocket.send(message);
+
     }
 </script>
 
