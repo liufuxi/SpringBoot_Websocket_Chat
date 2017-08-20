@@ -24,7 +24,6 @@
     </div>
 </div>
 
-
 <div>
     <div class="mdui-container container_text">
 
@@ -63,16 +62,14 @@
     </div>
 </div>
 
-
 <script src="http://cdn.bootcss.com/mdui/0.3.0/js/mdui.min.js"></script>
 <script src="https://cdn.bootcss.com/jquery/1.12.1/jquery.js"></script>
 
 <script type="text/template" class="package-price-template" id="message-template">
     <div class="mdui-card card-container-message">
         <div class="mdui-card-primary">
-            <div class="mdui-card-primary-title">消息</div>
+            <div class="mdui-card-content message-content"></div>
         </div>
-        <div class="mdui-card-content message-content"></div>
     </div>
 </script>
 
@@ -96,16 +93,16 @@
 
     websocket.onmessage = function (event) {
         console.log('websocket收到消息' + event.data);
-        if (event.data == "有新的进入") {
-            $('.chat-num').text($('.chat-num').text() - 0 + 1);
-        }
-        else if (event.data == "有用户离开") {
-            $('.chat-num').text($('.chat-num').text() - 1);
-        } else {
+        var result = $.parseJSON(event.data);
+        if (result.type == 3) {
             var element = document.getElementById('message-template').innerHTML;
-       
-            $('.message-container').append();
+            $('.message-container').append(element);
+            $(".message-content:last").html(result.message);
         }
+        else {
+            $('.chat-num').text(result.userNum);
+        }
+
     }
 
     websocket.onerror = function (event) {
@@ -119,6 +116,10 @@
 
     $('.send-message').click(function () {
         var message = $('.chat-message').val();
+        if (message == "") {
+            mdui.alert('请输入要发送的消息');
+            return;
+        }
         sendmessage(message);
         $('.chat-message').val("");
     })
