@@ -31,7 +31,6 @@ public class WebSocket {
         this.session = session;
         webSockets.add(this);
 
-
         messageVO.setType(1);
         messageVO.setUserNum(webSockets.size());
         messageVO.setMessage("有新的连接");
